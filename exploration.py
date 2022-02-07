@@ -47,7 +47,7 @@ compatible_tags = set()
 for inflections in inflections_words:
     if tag in inflections:
         compatible_tags = compatible_tags.union(set(inflections))
-print(tag, len(compatible_tags), sorted(compatible_tags))
+# print(tag, len(compatible_tags), sorted(compatible_tags))
 
 co_occurrence_matrix = np.zeros((n_tags, n_tags))
 
@@ -61,7 +61,7 @@ for i, tag in enumerate(all_tags):
                 co_occurrence_matrix[i, tag_to_index[occuring_tag]] = 1
 
 n_cc, labels = sparse.csgraph.connected_components(co_occurrence_matrix)
-print(n_cc)
+# print(n_cc)
 
 # plt.matshow(co_occurrence_matrix)
 # plt.show()
@@ -70,8 +70,8 @@ print(n_cc)
 
 n = 3
 
-tag = 'TRANS'
-type_tag = 'N'
+tag = 'PL'
+type_tag = 'V'
 n_grams_for_tag = {}
 for final, inflections in zip(final_words, inflections_words):
     if type_tag in inflections:
@@ -87,4 +87,37 @@ for final, inflections in zip(final_words, inflections_words):
 c = Counter(n_grams_for_tag)
 top_k = 10
 most_common_ngrams = c.most_common(5)
-print(tag, most_common_ngrams)
+# print(tag, most_common_ngrams)
+
+
+# Grouping by lemma
+lemma_always_inside = True
+for lemma in raw_words:
+
+    indices = []
+    transformed = []
+    transformations = []
+    always_inside = True
+
+    for i in range(len(raw_words)):
+        if raw_words[i] == lemma:
+            transformed.append(final_words[i])
+            transformations.append(inflections_words[i])
+
+            if not (lemma in final_words[i]):
+                # print(lemma, final_words[i])
+                always_inside = False
+
+    # for transformed_lemma, transformation_list in zip(transformed, transformations):
+    #     inside = lemma in transformed_lemma
+    #     print("{}: {}".format(transformed_lemma, transformation_list))
+
+    # print(always_inside)
+    lemma_always_inside = lemma_always_inside and always_inside
+
+print("Lemma always inside: {}".format(lemma_always_inside))
+
+
+print("################")
+print(np.unique(inflections_words))
+
