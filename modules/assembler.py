@@ -1,28 +1,34 @@
-from typing import List
+from typing import Dict
 import numpy as np
 
 
 class Assembler:
 
-    def __init__(self, grouped_stems: List, ngrams_per_attr_group: List):
-        self.grouped_stems = grouped_stems
-        self.ngrams_per_attr_group = ngrams_per_attr_group
+    def __init__(self):
+        self.grouped_stems = None
+        self.ngrams_per_attr_group = None
         self.assemblers = {}
 
-    def fit(self):
+    def fit(self, grouped_stems: Dict, ngrams_per_attr_group: Dict):
+        
+        self.grouped_stems = grouped_stems
+        self.ngrams_per_attr_group = ngrams_per_attr_group
 
         results = {}
 
         # Parsing each group of lemmas
-        for i_lemma_group, lemma_group in enumerate(self.grouped_stems):
+        for lemma_group in self.grouped_stems:
             # Parsing each entry
-            for stem, final, i_morph_attr_group in lemma_group:
+            
+            entries = self.grouped_stems[lemma_group]
+            
+            for stem, (final, morph_attr_group) in entries:
 
                 # Computing matching array
                 # TODO: only handling exact matching at this point
                 matching_array = -2 * np.ones(len(final))
 
-                ngrams = self.ngrams_per_attr_group[i_morph_attr_group]
+                ngrams = self.ngrams_per_attr_group[morph_attr_group]
 
                 # Finding stem and updating matching array
                 i_stem = final.find(stem)
@@ -31,20 +37,18 @@ class Assembler:
 
                 # Trying to match every ngram of the list into the matching array
                 for i, ngram in enumerate(ngrams):
-                    # print(ngram)
                     res = 0
                     while True:
                         res = final.find(ngram, res)
-                        # print(res)
                         if res == -1:
-                            break
+                            break                            
                         if matching_array[res] == -2:
                             matching_array[res:res + len(ngram)] = i
                             break
                         else:
                             res += len(ngram)
                             if res >= len(final):
-                                res = -1
+                                break
 
                 # TODO: if there are non-matched characters, we ignore them for the moment
                 # We could maybe "augment" the ngrams, adding them at the end of the list ?
@@ -56,10 +60,10 @@ class Assembler:
 
                 # Adding the ordering to the list of results
                 # for its lemma group and morphological attributes group
-                if (i_lemma_group, i_morph_attr_group) in results:
-                    results[(i_lemma_group, i_morph_attr_group)].append(ordering)
+                if (lemma_group, morph_attr_group) in results:
+                    results[(lemma_group, morph_attr_group)].append(ordering)
                 else:
-                    results[(i_lemma_group, i_morph_attr_group)] = [ordering]
+                    results[(lemma_group, morph_attr_group)] = [ordering]
 
         # For each combination, determining the most common ordering
         for key in results:
@@ -77,10 +81,10 @@ class Assembler:
 
             self.assemblers[key] = most_common
 
-    def predict(self, stem: str, i_lemma_group: int, i_morph_attr_group: int):
+    def predict(self, stem: str, lemma_group: tuple, morph_attr_group: str):
 
-        assembler = self.assemblers[(i_lemma_group, i_morph_attr_group)]
-        possible_ngrams = self.ngrams_per_attr_group[i_morph_attr_group]
+        assembler = self.assemblers[(lemma_group, morph_attr_group)]
+        possible_ngrams = self.ngrams_per_attr_group[morph_attr_group]
 
         prediction = ""
 

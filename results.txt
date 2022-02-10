@@ -1,0 +1,16 @@
+lang,accuracy,levenshtein
+uralic/krl,22.64,1.84
+oto-manguean/zpv,52.42,1.06
+niger-congo/swa,100.00,0.00
+germanic/isl,50.62,1.14
+austronesian/hil,39.08,1.59
+Afro-Asiatic/mlt,11.05,2.41
+Afro-Asiatic/orm,31.19,0.83
+Afro-Asiatic/syc,88.46,0.13
+Algic/cre,4.14,3.50
+Australian/mwf,2.27,3.13
+Niger-Congo/sna,97.74,0.05
+Sino-Tibetan/bod,61.45,0.53
+Siouan/dak,40.53,1.75
+Tungusic/evn,49.43,1.55
+Uto-Aztecan/ood,40.39,1.24

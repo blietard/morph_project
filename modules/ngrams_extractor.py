@@ -86,3 +86,16 @@ class NgramsExtractor:
         mask = ngrams_freqs[:, 1].astype('int32') > threshold * n
         above_threshold = ngrams_freqs[mask][:, 0]
         return above_threshold
+    
+    def get_ngrams_per_attr_group(self, threshold=0.5):
+        output_dict = {}
+        
+        for attr_group in self.mapping:
+            non_ordered_list = self.get_ngrams_from_attrs(attr_group, threshold)
+            
+            len_list = [len(ngram) for ngram in non_ordered_list]
+            
+                
+            output_dict[attr_group] = non_ordered_list[np.flip(np.argsort(len_list))]
+        
+        return output_dict
